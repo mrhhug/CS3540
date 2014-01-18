@@ -67,7 +67,25 @@ int main ()
   display_ave (num_grades, ave); 
   double median = calc_median(grades, num_grades);
   display_median (num_grades, median);
+  double standard_deviation = calc_standard_deviation(grades, num_grades);
+  display_standard_deviation (num_grades, standard_deviation);
   return 0;
+}
+
+void insertion_sort (int* grades, int num_grades)
+{
+  int i,j,temp;
+  for(i=1;i<num_grades;i++)
+  {
+      temp = grades[i];
+      j=i-1;
+      while(temp<grades[j] && j>=0)
+      {
+        grades[j+1] = grades[j];
+	--j;
+      }
+      grades[j+1]=temp;
+  }
 }
 
 void display_ave (int num_grades, double ave)
@@ -95,29 +113,26 @@ double calc_ave (int* grades, int num_grades)
   return ave;
 }
 
-void display_standard_deviation (int num_grades, double ave)
+void display_standard_deviation (int num_grades, double standard_deviation)
 {
   assert (num_grades >= 0);
-  if (num_grades == 0)
-    printf ("no data\n");
-  else
-    printf ("average: %f\n", ave);
+  if (num_grades != 0)
+    printf ("standard deviation: %f\n", standard_deviation);
 }
 
 double calc_standard_deviation (int* grades, int num_grades)
 {
   assert (grades != NULL);
   assert (num_grades >= 0);
-  double ave = 0;
-  if (num_grades > 0)
+  double standard_deviation, mean = calc_ave(grades, num_grades);
+  int i;
+  for(i = 0; i<num_grades; i++)
   {
-    int sum = 0;
-    int i = 0;
-    for (i = 0; i < num_grades; i++)
-      sum += grades[i];
-    ave = (double)sum / num_grades;
+    grades[i]=(grades[i]-mean);
+    printf("%d\n",grades[i]); 
   }
-  return ave;
+    standard_deviation = (calc_ave(grades, num_grades)); 
+  return standard_deviation;
 }
 
 void display_median (int num_grades, double median)
@@ -131,21 +146,23 @@ double calc_median (int* grades, int num_grades)
 {
   assert (grades != NULL);
   assert (num_grades >= 0);
+  insertion_sort(grades, num_grades);
   double median;
   if (num_grades > 0)
   {
-    if(num_grades % 2!=0)
-      median = grades[num_grades/2];
+    if(num_grades % 2==0)
+      median = (grades[num_grades/2] + grades[num_grades/2-1]) / 2.0;
     else
-      ///// HERE median = grades[(int)floor(num_grades)+1] + grades[(int)ceil(num_grades)+1] / 2;
+      median = grades[num_grades/2];
   }
   return median;
 }
 
 int* get_grades (int* num_grades)
 {
+  /*
   assert (num_grades != NULL);
- *num_grades = 0;
+  *num_grades = 0;
   int size = 10;
   int* grades = malloc (size * sizeof (int));
   int grade;
@@ -171,4 +188,16 @@ int* get_grades (int* num_grades)
   assert (grades != NULL);
   assert (*num_grades >= 0);
   return grades;
+  */
+	int* grades = malloc (8 * sizeof (int));
+  grades[0]=45;
+  grades[1]=19;
+  grades[2]=10;
+  grades[3]=99;
+  grades[4]=1;
+  grades[5]=3;
+  grades[6]=4;
+  grades[7]=5;
+  *num_grades=8;
+  return grades; 
 }
