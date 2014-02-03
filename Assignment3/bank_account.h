@@ -5,8 +5,8 @@
  *Assignment 3 - implement a bank account
  *run like: "make && ./test_account"
  */
-#ifndef _ACCOUNT_H_
-#define _ACCOUNT_H_
+#ifndef _BANK_ACCOUNT_H_
+#define _BANK_ACCOUNT_H_
 
 typedef struct
 {
@@ -53,7 +53,7 @@ int withdraw (account* acc, double account_withdraw);
 
 /*********************************************************
 preconditions: acc is a pointer to bank account 
-postcondition: acc is free
+postcondition: all memory allocated to the bank account has been deallocated
 */
 void delete_account (account* acc);
 

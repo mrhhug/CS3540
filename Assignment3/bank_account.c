@@ -5,7 +5,7 @@
  *Assignment 3 - implement a bank account
  *run like: "make && ./test_account"
  */
-#include "account.h"
+#include "bank_account.h"
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>

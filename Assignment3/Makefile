@@ -4,14 +4,14 @@
 #Student of Prof Gayler cs3540 Spr014
 #Assignment 3 - implement a bank account
 #run like: "make && ./test_account"
-test_account: account.o test_account.o
-	gcc -o test_account account.o test_account.o
+test_bank_account: bank_account.o test_bank_account.o
+	gcc -o test_bank_account bank_account.o test_bank_account.o
 
-account.o: account.c account.h
-	gcc -g -Wall -c account.c
+bank_account.o: bank_account.c bank_account.h
+	gcc -g -Wall -c bank_account.c
 
-test_account.o: test_account.c account.h
-	gcc -g -Wall -c test_account.c
+test_bank_account.o: test_bank_account.c bank_account.h
+	gcc -g -Wall -c test_bank_account.c
 
 clean:
-	rm -f account.o test_account.o test_account
+	rm -f bank_account.o test_bank_account.o test_bank_account
