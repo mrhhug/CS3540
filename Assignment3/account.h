@@ -1,3 +1,10 @@
+/*
+ *Author : Michael Hug
+ *Author email : hmichae4@students.kennesaw.edu
+ *Student of Prof Gayler cs3540 Spr014
+ *Assignment 3 - implement a bank account
+ *run like: "make test_account && ./test_account"
+ */
 #ifndef _ACCOUNT_H_
 #define _ACCOUNT_H_
 
