@@ -1,24 +1,31 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <fcntl.h>
+#include <limits.h>
 #include <linux/limits.h>
+#include <string.h>
 
 int
 main()
 {
-	char *buf;
-	printf("%d\n",PATH_MAX);
-	printf("%d\n",mkdir("/home/hmichae4/thing",S_IRUSR | S_IWUSR | S_IXUSR));
-	printf("%s\n",getcwd(buf,0));
+	char big[8356999] = "";
+	printf("%s%d\n","the size of a char is ",sizeof(char));
+	printf("%s%d\n","the size of a int is ",sizeof(int));
+//	char big[8377000] = ""; this is about 8 megabytes. and it works sometimes. 
+	char *buf = NULL;
+	printf("%d\n",INT_MAX);
+	
+	printf("%s\n",getcwd(NULL,0));
+
+	printf("%s\n",buf[0]);
+	strcat(big,getcwd(buf,0));
+	printf("\n new buf %s",big);
+	printf("%d\n",mkdir(buf,S_IRUSR | S_IWUSR | S_IXUSR));
 	chdir("/home/hmichae4/thing/");
-	// everything about buf1 should be done and over with
-	// buff 2 does not act right
-	// but if I reuse buf1 it works fine or comment out the buf1 block
-	char *buf2;
-	printf("%s\n",getcwd(buf2,0));
+	buf = NULL;
+	printf("%s\n",getcwd(buf,0));
 
 	free(buf);
-	free(buf2);
 
 	//////the worst part is that is seems to effect my other pointers
 	//
