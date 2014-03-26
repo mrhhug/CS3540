@@ -8,18 +8,18 @@
 int
 main()
 {
-	char big[8356999] = "";
-	printf("%s%d\n","the size of a char is ",sizeof(char));
-	printf("%s%d\n","the size of a int is ",sizeof(int));
+	//char big[8356999] = "";
+	//printf("%s%d\n","the size of a char is ",sizeof(char));
+	//printf("%s%d\n","the size of a int is ",sizeof(int));
 //	char big[8377000] = ""; this is about 8 megabytes. and it works sometimes. 
-	char *buf = NULL;
-	printf("%d\n",INT_MAX);
+	//char *buf = NULL;
+	//printf("%d\n",INT_MAX);
 	
 	printf("%s\n",getcwd(NULL,0));
 
-	printf("%s\n",buf[0]);
-	strcat(big,getcwd(buf,0));
-	printf("\n new buf %s",big);
+	//printf("%s\n",buf[0]);
+	//strcat(big,getcwd(buf,0));
+	//printf("\n new buf %s",big);
 	printf("%d\n",mkdir(buf,S_IRUSR | S_IWUSR | S_IXUSR));
 	chdir("/home/hmichae4/thing/");
 	buf = NULL;
