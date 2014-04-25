@@ -19,12 +19,22 @@ const char *fname = "counterFile.ttx";
 #define maxCount 100
 int i;
 pid_t parentPID;
-pid_t childPID;
+pid_t sonPID;
+pid_t daughterPID;
 
-static void parentAction();
-static void childAction();
+static void action();
 void err_exit (const char* message);
 
+void sigint()
+{
+	if(i>maxCount)
+		exit(0);
+	printf("%d wrote %d to file\n"),getpid(),writeCounter(addOneTotInt(readCounter()));
+	if(sonPID==getpid())
+		kill(daughterPID,SIGINT);
+	else
+		kill(sonPID,SIGINT);
+}
 int getFileSize()
 {
 	FILE *fb = fopen(fname,"rb");
@@ -72,6 +82,8 @@ int incrementFile()
 }
 int main ()
 {
+	printf("pid is %d\n",getpid());
+	signal(SIGINT,sigint);
 	int fd = creat (fname, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
 	if (fd < 0)
 		err_exit ("error in creating file");
@@ -82,26 +94,40 @@ int main ()
 	pid_t pid;
 	if ((pid = fork()) < 0)
 		err_exit("fork error");
-	else if (pid == 0) 
-		childPID=getpid();
+	if (pid==0)
+	{
+		sonPID=getpid();
+		printf("son created, pid %d\n",getpid());
+		for (;;)
+		{
+			pause();
+		}
+	}
 	else
-		parentPID=getpid();
-	childAction();
-	while(i)
-		;
+	{
+		if ((pid = fork()) < 0)
+		{
+			err_exit("fork error");
+		}
+		else if (pid == 0) 
+		{
+			daughterPID=getpid();
+			printf("daughetr created, pid %d\n",getpid());
+			for (;;)
+			{
+				pause();
+			}
+		}
+		else
+		{
+			parentPID=getpid();
+		}
+	}
+	kill(sonPID,SIGINT);
+	sleep(3);
+	kill(daughterPID,SIGKILL);
+	kill(sonPID,SIGKILL);
 	return 0; 
-}
-static void childAction()
-{
-	kill(parentPID,SIGSTOP);
-	printf("child process wrote : \t%d\n",incrementFile());
-	parentAction();
-}
-static void parentAction()
-{
-       	kill(childPID,SIGSTOP);
-	printf("parent process wrote : \t%d\n",incrementFile());
-	childAction();
 }
 void err_exit (const char* message)
 {
