@@ -13,11 +13,16 @@
 #include <stdlib.h>
 #include <fcntl.h>
 #include <math.h>
-#include <semaphore.h>
+#include <signal.h>
 
 const char *fname = "counterFile.ttx";
-sem_t mutex;
+#define maxCount 100
+int i;
+pid_t parentPID;
+pid_t childPID;
 
+static void parentAction();
+static void childAction();
 void err_exit (const char* message);
 
 int getFileSize()
@@ -74,25 +79,29 @@ int main ()
 	if (result != 1)
 		err_exit ("write failed");
 	close(fd);
-	sem_init(&mutex, 0, 1);
 	pid_t pid;
 	if ((pid = fork()) < 0)
 		err_exit("fork error");
-	else if (pid == 0) //child
-	{
-		int i;
-		for(i=0;i<20;i++)
-			printf("child process wrote : \t%d\n",incrementFile());
-	}
-	if (pid>0) //parent
-	{
-		int j;
-		for(j=0;j<20;j++)
-		{
-			printf("parent process wrote : \t%d\n",incrementFile());
-		}
-	}
+	else if (pid == 0) 
+		childPID=getpid();
+	else
+		parentPID=getpid();
+	childAction();
+	while(i)
+		;
 	return 0; 
+}
+static void childAction()
+{
+	kill(parentPID,SIGSTOP);
+	printf("child process wrote : \t%d\n",incrementFile());
+	parentAction();
+}
+static void parentAction()
+{
+       	kill(childPID,SIGSTOP);
+	printf("parent process wrote : \t%d\n",incrementFile());
+	childAction();
 }
 void err_exit (const char* message)
 {
