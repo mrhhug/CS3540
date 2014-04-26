@@ -16,24 +16,32 @@
 #include <signal.h>
 
 const char *fname = "counterFile.ttx";
-#define maxCount 100
-int i;
+#define maxCount 25
 pid_t parentPID;
 pid_t sonPID;
 pid_t daughterPID;
 
-static void action();
+void kill_exit();
 void err_exit (const char* message);
 
-void sigint()
+void parentSigalarm(int signo)
 {
-	if(i>maxCount)
-		exit(0);
-	printf("%d wrote %d to file\n"),getpid(),writeCounter(addOneTotInt(readCounter()));
-	if(sonPID==getpid())
-		kill(daughterPID,SIGINT);
+	if(readCounter()>=maxCount)
+		kill_exit();
+	if(readCounter() % 2)
+		kill(daughterPID,SIGALRM);
 	else
-		kill(sonPID,SIGINT);
+		kill(sonPID,SIGALRM);
+}
+void childSigalarm()
+{
+	char *child;
+	if(sonPID==0) // this means current process is son
+		child="son     ";
+	else
+		child="daughter";
+	printf("%s wrote %d to %s\n",child,incrementFile(),fname);
+	kill(parentPID,SIGALRM);
 }
 int getFileSize()
 {
@@ -53,17 +61,18 @@ int readCounter()
 	if (fd < 0)
 		err_exit ("error in opening file for read");
 	read (fd,buf,lengthOfInt);
-	return atoi(buf);
 	close(fd);
+	return atoi(buf);
 }
 int addOneTotInt(int i)
 {
 	i++;
 	return i;
 }
-//do not worry about writing less digits, we are only incramenting
+//do not worry about writing less digits, we are only incrementing
 int writeCounter(int counter)
 {
+	//right here is where I use the math library.
 	int lengthOfCounter = floor (log10 (abs (counter))) + 1;
 	char buf[lengthOfCounter];
 	sprintf(buf, "%d", counter);
@@ -78,12 +87,12 @@ int writeCounter(int counter)
 }
 int incrementFile()
 {
-	writeCounter(addOneTotInt(readCounter()));
+	return writeCounter(addOneTotInt(readCounter()));
 }
 int main ()
 {
-	printf("pid is %d\n",getpid());
-	signal(SIGINT,sigint);
+	printf("parent pid is %d\n",getpid());
+	parentPID=getpid();
 	int fd = creat (fname, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
 	if (fd < 0)
 		err_exit ("error in creating file");
@@ -91,13 +100,12 @@ int main ()
 	if (result != 1)
 		err_exit ("write failed");
 	close(fd);
-	pid_t pid;
-	if ((pid = fork()) < 0)
+	if ((sonPID = fork()) < 0)
 		err_exit("fork error");
-	if (pid==0)
+	if (sonPID==0)
 	{
-		sonPID=getpid();
 		printf("son created, pid %d\n",getpid());
+		signal(SIGALRM,childSigalarm);
 		for (;;)
 		{
 			pause();
@@ -105,14 +113,14 @@ int main ()
 	}
 	else
 	{
-		if ((pid = fork()) < 0)
+		if ((daughterPID = fork()) < 0)
 		{
 			err_exit("fork error");
 		}
-		else if (pid == 0) 
+		else if (daughterPID == 0) 
 		{
-			daughterPID=getpid();
-			printf("daughetr created, pid %d\n",getpid());
+			printf("daughter created, pid %d\n",getpid());
+			signal(SIGALRM,childSigalarm);
 			for (;;)
 			{
 				pause();
@@ -120,17 +128,25 @@ int main ()
 		}
 		else
 		{
+			signal(SIGALRM,parentSigalarm);
 			parentPID=getpid();
 		}
 	}
-	kill(sonPID,SIGINT);
-	sleep(3);
+	alarm(1);
+	for(;;)
+	{
+		pause();
+	}
+	//no return 0 because the only way to exit this program is through kill_exit
+}
+void kill_exit()
+{
 	kill(daughterPID,SIGKILL);
-	kill(sonPID,SIGKILL);
-	return 0; 
+	kill(sonPID,SIGKILL);	
+	exit(0);
 }
 void err_exit (const char* message)
 {
 	printf ("%s\n", message);
-	exit (0);
+	kill_exit();
 }
